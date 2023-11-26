@@ -3,19 +3,22 @@ name: Create DB backups by schedule
 on:
   push:
     branches: ['main']
-    #schedule:
-        #- cron: '5 * * * *'
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   backup:
     runs-on: ubuntu-latest
     env:
       WISHLIST: 'wishlist-db'
+      PORTFOLIO: 'portflio-db'
+      PRINCESS: 'princess-db'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install MongoDB Database Tools
         run: |
+          # https://www.mongodb.com/community/forums/t/how-can-i-install-mongodb-database-tools-on-github-actions/208006/2
           # https://www.mongodb.com/try/download/database-tools
           wget https://fastdl.mongodb.org/tools/db/mongodb-database-tools-ubuntu2204-x86_64-100.9.3.deb
           sudo apt install ./mongodb-database-tools-*.deb
@@ -36,31 +39,39 @@ jobs:
             echo "Exporting collection: $collection"
             git clone git@github.com:serhii-chernenko/$repo.git
           done
-      - name: Export Wishlist collections
+      - name: Backup Portfolio collections
+        working-directory: ./${{ env.PORTFOLIO }}
+        run: |
+          collections=('admins' 'bios' 'certificates' 'contacts' 'cooperation' 'pages' 'projects' 'sessions' 'youtubes')
+          for collection in "${collections[@]}"
+          do
+            echo "Exporting collection: $collection"
+            mongoexport --uri ${{ secrets.PORTFOLIO_URI }} --collection $collection --type json --out $collection.json
+          done
+          git add --all
+          git commit -m "new backup"
+          git push origin main
+      - name: Backup Wishlist collections
         working-directory: ./${{ env.WISHLIST }}
         run: |
-          mongoexport=$(mongoexport --version)
-          echo "Mongosh version is $mongoexport"
-
           collections=('users' 'wishes' 'gives')
           for collection in "${collections[@]}"
           do
             echo "Exporting collection: $collection"
             mongoexport --uri ${{ secrets.WISHLIST_URI }} --collection $collection --type json --out $collection.json
           done
-      - name: Push Wishlist backup
-        working-directory: ./${{ env.WISHLIST }}
-        run: |
           git add --all
           git commit -m "new backup"
           git push origin main
-      # - name: Clone Backup Repo
-      #   run: | 
-      #     git clone git@github.com:username/backup-repository.git 
-      #     cp /path_to/db_backup.tar backup-repository/ 
-      # - name: Push to Backup Repo
-      #   run: | 
-      #     cd backup-repository 
-      #     git add . 
-      #     git commit -m "DB Backup" 
-      #     git push
+      - name: Backup Princess collections
+        working-directory: ./${{ env.PRINCESS }}
+        run: |
+          collections=('channels' 'players' 'scores' 'status')
+          for collection in "${collections[@]}"
+          do
+            echo "Exporting collection: $collection"
+            mongoexport --uri ${{ secrets.PRINCESS_URI }} --collection $collection --type json --out $collection.json
+          done
+          git add --all
+          git commit -m "new backup"
+          git push origin main
