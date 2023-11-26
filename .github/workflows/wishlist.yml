@@ -10,15 +10,10 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     env:
-      CONNECT: 'ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }}'
-      BACKUP_DIR: '/home/${{ secrets.SSH_USER }}/apps/backup'
-      WISHLIST_URI: ${{ secrets.WISHLIST_URI }}
+      WISHLIST: 'wishlist-db'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Install mongosh
         run: |
           # https://www.mongodb.com/docs/mongodb-shell/install/
@@ -27,11 +22,29 @@ jobs:
           echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
           sudo apt-get update
           sudo apt-get install -y mongodb-mongosh
-          mongosh --version
-      # - name: Create DB Dump
-      #   run: | 
-      #     ${{ env.CONNECT }} 'mkdir ${{ env.BACKUP_DIR }}/test' 
-      #     # ssh -o StrictHostKeyChecking=no username@yourVPSserverIP 'pg_dump -U postgres -W -F t yourdbname >/path_to/db_backup.tar' 
+      - name: Clone repos
+        run: |
+          repos=('${{ env.WISHLIST }}')
+          for repo in "${repos[@]}"
+          do
+            echo "Exporting collection: $collection"
+            git clone git@github.com:serhii-chernenko/$repo.git
+          done
+      - name: Export Wishlist collections
+        working-directory: ./${{ env.WISHLIST }}
+        run: |
+          collections=('users' 'wishes' 'gives')
+          for collection in "${collections[@]}"
+          do
+            echo "Exporting collection: $collection"
+            mongoexport --uri ${{ secrets.WISHLIST_URI }} --collection $collection --type json --out $collection.json
+          done
+      - name: Push Wishlist backup
+        working-directory: ./${{ env.WISHLIST }}
+        run: |
+          git add --all
+          git commit -m "new backup"
+          git push origin main
       # - name: Clone Backup Repo
       #   run: | 
       #     git clone git@github.com:username/backup-repository.git 
