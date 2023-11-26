@@ -17,7 +17,7 @@ jobs:
             ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
         - name: Create DB Dump
           run: | 
-            ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }} 'mdkir /home/${{ secrets.SSH_USER }}/apps/test' 
+            ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }} 'mkdir /home/${{ secrets.SSH_USER }}/apps/test' 
             # ssh -o StrictHostKeyChecking=no username@yourVPSserverIP 'pg_dump -U postgres -W -F t yourdbname >/path_to/db_backup.tar' 
         # - name: Clone Backup Repo
         #   run: | 
