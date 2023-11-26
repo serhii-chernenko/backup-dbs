@@ -12,16 +12,26 @@ jobs:
     env:
       CONNECT: 'ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }}'
       BACKUP_DIR: '/home/${{ secrets.SSH_USER }}/apps/backup'
+      WISHLIST_URI: ${{ secrets.WISHLIST_URI }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-      - name: Create DB Dump
-        run: | 
-          ${{ env.CONNECT }} 'mkdir ${{ env.BACKUP_DIR }}/test' 
-          # ssh -o StrictHostKeyChecking=no username@yourVPSserverIP 'pg_dump -U postgres -W -F t yourdbname >/path_to/db_backup.tar' 
+      - name: Install mongosh
+        run: |
+          # https://www.mongodb.com/docs/mongodb-shell/install/
+          sudo apt-get install gnupg
+          wget -qO- https://www.mongodb.org/static/pgp/server-7.0.asc | sudo tee /etc/apt/trusted.gpg.d/server-7.0.asc
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-mongosh
+          mongosh --version
+      # - name: Create DB Dump
+      #   run: | 
+      #     ${{ env.CONNECT }} 'mkdir ${{ env.BACKUP_DIR }}/test' 
+      #     # ssh -o StrictHostKeyChecking=no username@yourVPSserverIP 'pg_dump -U postgres -W -F t yourdbname >/path_to/db_backup.tar' 
       # - name: Clone Backup Repo
       #   run: | 
       #     git clone git@github.com:username/backup-repository.git 
