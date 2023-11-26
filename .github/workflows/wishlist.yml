@@ -40,7 +40,7 @@ jobs:
             git clone git@github.com:serhii-chernenko/$repo.git
           done
       - name: Backup Portfolio collections
-        working-directory: ./${{ env.PORTFOLIO }}
+        working-directory: ${{ env.PORTFOLIO }}
         run: |
           collections=('admins' 'bios' 'certificates' 'contacts' 'cooperation' 'pages' 'projects' 'sessions' 'youtubes')
           for collection in "${collections[@]}"
@@ -52,7 +52,7 @@ jobs:
           git commit -m "new backup"
           git push origin main
       - name: Backup Wishlist collections
-        working-directory: ./${{ env.WISHLIST }}
+        working-directory: ${{ env.WISHLIST }}
         run: |
           collections=('users' 'wishes' 'gives')
           for collection in "${collections[@]}"
@@ -64,7 +64,7 @@ jobs:
           git commit -m "new backup"
           git push origin main
       - name: Backup Princess collections
-        working-directory: ./${{ env.PRINCESS }}
+        working-directory: ${{ env.PRINCESS }}
         run: |
           collections=('channels' 'players' 'scores' 'status')
           for collection in "${collections[@]}"
