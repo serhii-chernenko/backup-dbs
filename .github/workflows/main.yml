@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WISHLIST: 'wishlist-db'
-      PORTFOLIO: 'portflio-db'
+      PORTFOLIO: 'portfolio-db'
       PRINCESS: 'princess-db'
     steps:
       - name: Checkout
