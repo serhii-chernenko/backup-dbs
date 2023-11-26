@@ -9,23 +9,26 @@ on:
 jobs:
   backup:
     runs-on: ubuntu-latest
+    env:
+      CONNECT: 'ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }}'
+      BACKUP_DIR: '/home/${{ secrets.SSH_USER }}/apps/backup'
     steps:
-        - name: Checkout
-          uses: actions/checkout@v3
-        - uses: webfactory/ssh-agent@v0.8.0
-          with:
-            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-        - name: Create DB Dump
-          run: | 
-            ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_IP }} -p ${{ secrets.SSH_PORT }} 'mkdir /home/${{ secrets.SSH_USER }}/apps/test' 
-            # ssh -o StrictHostKeyChecking=no username@yourVPSserverIP 'pg_dump -U postgres -W -F t yourdbname >/path_to/db_backup.tar' 
-        # - name: Clone Backup Repo
-        #   run: | 
-        #     git clone git@github.com:username/backup-repository.git 
-        #     cp /path_to/db_backup.tar backup-repository/ 
-        # - name: Push to Backup Repo
-        #   run: | 
-        #     cd backup-repository 
-        #     git add . 
-        #     git commit -m "DB Backup" 
-        #     git push
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Create DB Dump
+        run: | 
+          ${{ env.CONNECT }} 'mkdir ${{ env.BACKUP_DIR }}/test' 
+          # ssh -o StrictHostKeyChecking=no username@yourVPSserverIP 'pg_dump -U postgres -W -F t yourdbname >/path_to/db_backup.tar' 
+      # - name: Clone Backup Repo
+      #   run: | 
+      #     git clone git@github.com:username/backup-repository.git 
+      #     cp /path_to/db_backup.tar backup-repository/ 
+      # - name: Push to Backup Repo
+      #   run: | 
+      #     cd backup-repository 
+      #     git add . 
+      #     git commit -m "DB Backup" 
+      #     git push
