@@ -33,7 +33,7 @@ jobs:
           git config --global user.name "Serhii Chernenko"
       - name: Clone repos
         run: |
-          repos=('${{ env.WISHLIST }}')
+          repos=('${{ env.PORTFOLIO }}' '${{ env.WISHLIST }}' '${{ env.PRINCESS }}')
           for repo in "${repos[@]}"
           do
             echo "Exporting collection: $collection"
