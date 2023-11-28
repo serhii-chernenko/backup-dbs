@@ -42,7 +42,7 @@ jobs:
       - name: Backup Portfolio collections
         working-directory: ${{ env.PORTFOLIO }}
         run: |
-          collections=('admins' 'bios' 'certificates' 'contacts' 'cooperation' 'pages' 'projects' 'sessions' 'youtubes')
+          collections=('admins' 'bios' 'certificates' 'contacts' 'cooperation' 'pages' 'projects' 'youtubes')
           for collection in "${collections[@]}"
           do
             echo "Exporting collection: $collection"
