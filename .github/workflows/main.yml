@@ -4,7 +4,7 @@ on:
   push:
     branches: ['main']
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 22 * * *'
 
 jobs:
   backup:
@@ -48,9 +48,13 @@ jobs:
             echo "Exporting collection: $collection"
             mongoexport --uri ${{ secrets.PORTFOLIO_URI }} --collection $collection --type json --out $collection.json
           done
-          git add --all
-          git commit -m "new backup"
-          git push origin main
+          if [[ `git diff HEAD --shortstat` != "" ]]; then
+            git add --all
+            git commit -m "new backup"
+            git push origin main
+          else
+            echo "There are no changes to commit."
+          fi
       - name: Backup Wishlist collections
         working-directory: ${{ env.WISHLIST }}
         run: |
@@ -60,9 +64,13 @@ jobs:
             echo "Exporting collection: $collection"
             mongoexport --uri ${{ secrets.WISHLIST_URI }} --collection $collection --type json --out $collection.json
           done
-          git add --all
-          git commit -m "new backup"
-          git push origin main
+          if [[ `git diff HEAD --shortstat` != "" ]]; then
+            git add --all
+            git commit -m "new backup"
+            git push origin main
+          else
+            echo "There are no changes to commit."
+          fi
       - name: Backup Princess collections
         working-directory: ${{ env.PRINCESS }}
         run: |
@@ -72,6 +80,10 @@ jobs:
             echo "Exporting collection: $collection"
             mongoexport --uri ${{ secrets.PRINCESS_URI }} --collection $collection --type json --out $collection.json
           done
-          git add --all
-          git commit -m "new backup"
-          git push origin main
+          if [[ `git diff HEAD --shortstat` != "" ]]; then
+            git add --all
+            git commit -m "new backup"
+            git push origin main
+          else
+            echo "There are no changes to commit."
+          fi
