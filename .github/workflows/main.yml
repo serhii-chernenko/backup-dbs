@@ -1,4 +1,4 @@
-name: Create DB backups by schedule
+name: Create DB backups by scheduled cron
 
 on:
   push:
