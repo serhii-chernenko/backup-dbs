@@ -1,6 +1,7 @@
 name: Create DB backups by scheduled cron
 
 on:
+  workflow_dispatch:
   push:
     branches: ['main']
   schedule:
