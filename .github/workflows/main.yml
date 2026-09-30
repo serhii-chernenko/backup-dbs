@@ -13,7 +13,6 @@ jobs:
     env:
       WISHLIST: 'wishlist-db'
       PORTFOLIO: 'portfolio-db'
-      PRINCESS: 'princess-db'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -34,7 +33,7 @@ jobs:
           git config --global user.name "Serhii Chernenko"
       - name: Clone repos
         run: |
-          repos=('${{ env.PORTFOLIO }}' '${{ env.WISHLIST }}' '${{ env.PRINCESS }}')
+          repos=('${{ env.PORTFOLIO }}' '${{ env.WISHLIST }}')
           for repo in "${repos[@]}"
           do
             echo "Exporting collection: $collection"
@@ -64,22 +63,6 @@ jobs:
           do
             echo "Exporting collection: $collection"
             mongoexport --uri ${{ secrets.WISHLIST_URI }} --collection $collection --type json --out $collection.json
-          done
-          if [[ `git diff HEAD --shortstat` != "" ]]; then
-            git add --all
-            git commit -m "new backup"
-            git push origin main
-          else
-            echo "There are no changes to commit."
-          fi
-      - name: Backup Princess collections
-        working-directory: ${{ env.PRINCESS }}
-        run: |
-          collections=('channels' 'players' 'scores' 'status')
-          for collection in "${collections[@]}"
-          do
-            echo "Exporting collection: $collection"
-            mongoexport --uri ${{ secrets.PRINCESS_URI }} --collection $collection --type json --out $collection.json
           done
           if [[ `git diff HEAD --shortstat` != "" ]]; then
             git add --all
