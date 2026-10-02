@@ -11,7 +11,6 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     env:
-      WISHLIST: 'wishlist-db'
       PORTFOLIO: 'portfolio-db'
     steps:
       - name: Checkout
@@ -33,7 +32,7 @@ jobs:
           git config --global user.name "Serhii Chernenko"
       - name: Clone repos
         run: |
-          repos=('${{ env.PORTFOLIO }}' '${{ env.WISHLIST }}')
+          repos=('${{ env.PORTFOLIO }}')
           for repo in "${repos[@]}"
           do
             echo "Exporting collection: $collection"
@@ -47,22 +46,6 @@ jobs:
           do
             echo "Exporting collection: $collection"
             mongoexport --uri ${{ secrets.PORTFOLIO_URI }} --collection $collection --type json --out $collection.json
-          done
-          if [[ `git diff HEAD --shortstat` != "" ]]; then
-            git add --all
-            git commit -m "new backup"
-            git push origin main
-          else
-            echo "There are no changes to commit."
-          fi
-      - name: Backup Wishlist collections
-        working-directory: ${{ env.WISHLIST }}
-        run: |
-          collections=('users' 'wishes' 'gives')
-          for collection in "${collections[@]}"
-          do
-            echo "Exporting collection: $collection"
-            mongoexport --uri ${{ secrets.WISHLIST_URI }} --collection $collection --type json --out $collection.json
           done
           if [[ `git diff HEAD --shortstat` != "" ]]; then
             git add --all
